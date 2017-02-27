@@ -100,6 +100,16 @@ abstract class AIMAbstractRequest extends AbstractRequest
         return $this->getDeveloperMode() ? $this->getDeveloperEndpoint() : $this->getLiveEndpoint();
     }
 
+    public function getDataDescriptor()
+    {
+        return $this->getParameter('dataDescriptor') ? $this->getParameter('dataDescriptor') : $this->httpRequest->request->get('dataDescriptor');
+    }
+
+    public function getDataValue()
+    {
+        return $this->getParameter('dataValue') ? $this->getParameter('dataValue') : $this->httpRequest->request->get('dataValue');
+    }
+
     /**
      * @return TransactionReference
      */
