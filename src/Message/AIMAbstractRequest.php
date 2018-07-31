@@ -60,6 +60,7 @@ abstract class AIMAbstractRequest extends AbstractRequest
     {
         return $this->getParameter('hashSecret');
     }
+
     public function setHashSecret($value)
     {
         return $this->setParameter('hashSecret', $value);
@@ -98,6 +99,26 @@ abstract class AIMAbstractRequest extends AbstractRequest
     public function getEndpoint()
     {
         return $this->getDeveloperMode() ? $this->getDeveloperEndpoint() : $this->getLiveEndpoint();
+    }
+
+    public function getSolutionId()
+    {
+        return $this->getParameter('solutionId');
+    }
+
+    public function setSolutionId($value)
+    {
+        return $this->setParameter('solutionId', $value);
+    }
+
+    public function getAuthCode()
+    {
+        return $this->getParameter('authCode');
+    }
+
+    public function setAuthCode($value)
+    {
+        return $this->setParameter('authCode', $value);
     }
 
     public function getDataDescriptor()
@@ -180,14 +201,52 @@ abstract class AIMAbstractRequest extends AbstractRequest
         return $this->setParameter('invoiceNumber', $value);
     }
 
+    /**
+     * @link http://developer.authorize.net/api/reference/features/acceptjs.html Documentation on opaque data
+     * @return string
+     */
+    public function getOpaqueDataDescriptor()
+    {
+        return $this->getParameter('opaqueDataDescriptor');
+    }
+
+    /**
+     * @link http://developer.authorize.net/api/reference/features/acceptjs.html Documentation on opaque data
+     * @return string
+     */
+    public function getOpaqueDataValue()
+    {
+        return $this->getParameter('opaqueDataValue');
+    }
+
+    /**
+     * @link http://developer.authorize.net/api/reference/features/acceptjs.html Documentation on opaque data
+     * @param string
+     * @return string
+     */
+    public function setOpaqueDataDescriptor($value)
+    {
+        return $this->setParameter('opaqueDataDescriptor', $value);
+    }
+
+    /**
+     * @link http://developer.authorize.net/api/reference/features/acceptjs.html Documentation on opaque data
+     * @param string
+     * @return string
+     */
+    public function setOpaqueDataValue($value)
+    {
+        return $this->setParameter('opaqueDataValue', $value);
+    }
+
     public function sendData($data)
     {
         $headers = array('Content-Type' => 'text/xml; charset=utf-8');
 
         $data = $data->saveXml();
-        $httpResponse = $this->httpClient->post($this->getEndpoint(), $headers, $data)->send();
+        $httpResponse = $this->httpClient->request('POST', $this->getEndpoint(), $headers, $data);
 
-        return $this->response = new AIMResponse($this, $httpResponse->getBody());
+        return $this->response = new AIMResponse($this, $httpResponse->getBody()->getContents());
     }
 
     /**
@@ -229,6 +288,15 @@ abstract class AIMAbstractRequest extends AbstractRequest
         }
 
         $data->transactionRequest->transactionType = $this->action;
+    }
+
+    protected function addSolutionId(\SimpleXMLElement $data)
+    {
+        $solutionId = $this->getSolutionId();
+
+        if (!empty($solutionId)) {
+            $data->transactionRequest->solution->id = $solutionId;
+        }
     }
 
     /**

@@ -11,21 +11,11 @@ processing library for PHP 5.3+. This package implements Authorize.Net support f
 
 ## Installation
 
-Omnipay is installed via [Composer](http://getcomposer.org/). To install, simply add it
-to your `composer.json` file:
+Omnipay is installed via [Composer](http://getcomposer.org/). To install, simply require `league/omnipay` and `omnipay/authorizenet` with Composer:
 
-```json
-{
-    "require": {
-        "omnipay/authorizenet": "~2.0"
-    }
-}
 ```
-
-And run composer to update your dependencies:
-
-    $ curl -s http://getcomposer.org/installer | php
-    $ php composer.phar update
+composer require league/omnipay omnipay/authorizenet:"3.x@dev"
+```
 
 ## Basic Usage
 
@@ -36,8 +26,45 @@ The following gateways are provided by this package:
 * AuthorizeNet_SIM
 * AuthorizeNet_DPM
 
+In addition, `Accept.JS` is supported by the AIM driver. More details are provided below.
+
 For general usage instructions, please see the main [Omnipay](https://github.com/thephpleague/omnipay)
 repository.
+
+## Accept.JS
+
+This gateway uses a JavaScript script to tokenize credit card details at the front end,
+i.e. in the payment form.
+Just the tokenized version of the credit card is then sent back to the merchant site,
+where it is used as a proxy for the credit card.
+
+The card is tokenized into two values returned in `opaqueData` object from Accept.JS:
+
+* dataDescriptor - the type of opaque data, e.g. "COMMON.ACCEPT.INAPP.PAYMENT"
+* dataValue - the value for the opaque data, e.g. "eyJjb2RlIjoiNT... {256 characters} ...idiI6IjEuMSJ9"
+
+These two values must be POSTed back to the merchant application, usually as a part of the payment form.
+Make sure the raw credit card details are NOT posted back to your site.
+How this is handled is beyond this short note, but examples are always welcome in the documentation.
+
+On the server, the tokenized detailt are passed into the `payment` or `authorize` request object.
+You will still need to pass in the `CreditCard` object, as that contains details of the payee and
+recipient, but just leave the credit card details of that object blank. For example:
+
+```php
+// $gateway is an instantiation of the AIM driver.
+// $dataDescriptor and $dataValue come from the paymentr form at the front end.
+
+$request = $gateway->purchase(
+    [
+        'notifyUrl' => '...',
+        'amount' => $amount,
+        'opaqueDataDescriptor' => $dataDescriptor,
+        'opaqueDataValue' => $dataValue,
+        ...
+    ]
+);
+```
 
 ## Support
 
