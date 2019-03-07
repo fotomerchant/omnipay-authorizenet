@@ -120,6 +120,26 @@ abstract class AIMAbstractRequest extends AbstractRequest
         return $this->setParameter('dataValue', $value);
     }
 
+    public function getCustomerBilling()
+    {
+        return $this->getParameter('customerBilling') ? $this->getParameter('customerBilling') : $this->httpRequest->request->get('customerBilling');
+    }
+
+    public function setCustomerBilling($value)
+    {
+        return $this->setParameter('customerBilling', $value);
+    }
+
+    public function getCustomerShipping()
+    {
+        return $this->getParameter('customerShipping') ? $this->getParameter('customerShipping') : $this->httpRequest->request->get('customerShipping');
+    }
+
+    public function setCustomerShipping($value)
+    {
+        return $this->setParameter('customerShipping', $value);
+    }
+
     /**
      * @return TransactionReference
      */
@@ -251,6 +271,34 @@ abstract class AIMAbstractRequest extends AbstractRequest
         $customer = $this->getCustomerId();
         if (!empty($customer)) {
             $req->customer->id = $customer;
+        }
+
+        $customerBilling = $this->getCustomerBilling();
+        if (is_array($customerBilling)) {
+            $req->customer->email = $customerBilling['email'] ?: null;
+
+            $req->billTo->firstName = $customerBilling['firstName'] ?: null;
+            $req->billTo->lastName = $customerBilling['lastName'] ?: null;
+            $req->billTo->address = $customerBilling['address'] ?: null;
+            $req->billTo->city = $customerBilling['city'] ?: null;
+            $req->billTo->state = $customerBilling['state'] ?: null;
+            $req->billTo->zip = $customerBilling['zip'] ?: null;
+            $req->billTo->country = $customerBilling['country'] ?: null;
+            $req->billTo->phoneNumber = $customerBilling['phone'] ?: null;
+        }
+
+        $customerShipping = $this->getCustomerShipping();
+        if (is_array($customerShipping)) {
+            if (is_array($customerBilling)) {
+                $req->shipTo->firstName = $customerBilling['firstName'] ?: null;
+                $req->shipTo->lastName = $customerBilling['lastName'] ?: null;
+            }
+
+            $req->shipTo->address = $customerShipping['address'] ?: null;
+            $req->shipTo->city = $customerShipping['city'] ?: null;
+            $req->shipTo->state = $customerShipping['state'] ?: null;
+            $req->shipTo->zip = $customerShipping['zip'] ?: null;
+            $req->shipTo->country = $customerShipping['country'] ?: null;
         }
 
         //$req->order->description = $this->getDescription();
