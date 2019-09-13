@@ -105,19 +105,9 @@ abstract class AIMAbstractRequest extends AbstractRequest
         return $this->getParameter('dataDescriptor') ? $this->getParameter('dataDescriptor') : $this->httpRequest->request->get('dataDescriptor');
     }
 
-    public function setDataDescriptor($value)
-    {
-        return $this->setParameter('dataDescriptor', $value);
-    }
-
     public function getDataValue()
     {
         return $this->getParameter('dataValue') ? $this->getParameter('dataValue') : $this->httpRequest->request->get('dataValue');
-    }
-
-    public function setDataValue($value)
-    {
-        return $this->setParameter('dataValue', $value);
     }
 
     /**
