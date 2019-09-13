@@ -26,19 +26,13 @@ class AIMAuthorizeRequest extends AIMAbstractRequest
 
     protected function addPayment(\SimpleXMLElement $data)
     {
-        if ($this->getDataDescriptor() && $this->getDataValue()) {
-            $data->transactionRequest->payment->opaqueData->dataDescriptor = $this->getDataDescriptor();
-            $data->transactionRequest->payment->opaqueData->dataValue = $this->getDataValue();
-        }
-        else {
-            $this->validate('card');
-            /** @var CreditCard $card */
-            $card = $this->getCard();
-            $card->validate();
-            $data->transactionRequest->payment->creditCard->cardNumber = $card->getNumber();
-            $data->transactionRequest->payment->creditCard->expirationDate = $card->getExpiryDate('my');
-            $data->transactionRequest->payment->creditCard->cardCode = $card->getCvv();
-        }
+        $this->validate('card');
+        /** @var CreditCard $card */
+        $card = $this->getCard();
+        $card->validate();
+        $data->transactionRequest->payment->creditCard->cardNumber = $card->getNumber();
+        $data->transactionRequest->payment->creditCard->expirationDate = $card->getExpiryDate('my');
+        $data->transactionRequest->payment->creditCard->cardCode = $card->getCvv();
     }
 
     protected function addCustomerIP(\SimpleXMLElement $data)
